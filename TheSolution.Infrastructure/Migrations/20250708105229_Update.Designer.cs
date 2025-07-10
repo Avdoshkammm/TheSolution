@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using TheSolution.Infrastructure.Data;
 
@@ -11,9 +12,11 @@ using TheSolution.Infrastructure.Data;
 namespace TheSolution.Infrastructure.Migrations
 {
     [DbContext(typeof(TheSolutionDBContext))]
-    partial class TheSolutionDBModelSnapshot : ModelSnapshot
+    [Migration("20250708105229_Update")]
+    partial class Update
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -163,14 +166,11 @@ namespace TheSolution.Infrastructure.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("ID"));
 
-                    b.Property<int>("OPID")
-                        .HasColumnType("int");
-
                     b.Property<DateTime>("OrderDate")
                         .HasColumnType("datetime2");
 
-                    b.Property<int>("TotalAmount")
-                        .HasColumnType("int");
+                    b.Property<decimal>("TotalAmount")
+                        .HasColumnType("decimal(18,2)");
 
                     b.Property<string>("UserID")
                         .IsRequired()
@@ -194,9 +194,6 @@ namespace TheSolution.Infrastructure.Migrations
                     b.Property<int>("OrderID")
                         .HasColumnType("int");
 
-                    b.Property<int?>("OrderID1")
-                        .HasColumnType("int");
-
                     b.Property<int>("ProductID")
                         .HasColumnType("int");
 
@@ -205,14 +202,9 @@ namespace TheSolution.Infrastructure.Migrations
 
                     b.HasKey("ID");
 
-                    b.HasIndex("OrderID1")
-                        .IsUnique()
-                        .HasFilter("[OrderID1] IS NOT NULL");
+                    b.HasIndex("OrderID");
 
                     b.HasIndex("ProductID");
-
-                    b.HasIndex("OrderID", "ProductID")
-                        .IsUnique();
 
                     b.ToTable("OrderProducts");
                 });
@@ -386,19 +378,15 @@ namespace TheSolution.Infrastructure.Migrations
             modelBuilder.Entity("TheSolution.Domain.Entities.OrderProduct", b =>
                 {
                     b.HasOne("TheSolution.Domain.Entities.Order", "Order")
-                        .WithMany()
+                        .WithMany("OrderProducts")
                         .HasForeignKey("OrderID")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("TheSolution.Domain.Entities.Order", null)
-                        .WithOne("OrderProducts")
-                        .HasForeignKey("TheSolution.Domain.Entities.OrderProduct", "OrderID1");
-
                     b.HasOne("TheSolution.Domain.Entities.Product", "Product")
-                        .WithMany()
+                        .WithMany("OrderProducts")
                         .HasForeignKey("ProductID")
-                        .OnDelete(DeleteBehavior.Restrict)
+                        .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.Navigation("Order");
@@ -408,8 +396,12 @@ namespace TheSolution.Infrastructure.Migrations
 
             modelBuilder.Entity("TheSolution.Domain.Entities.Order", b =>
                 {
-                    b.Navigation("OrderProducts")
-                        .IsRequired();
+                    b.Navigation("OrderProducts");
+                });
+
+            modelBuilder.Entity("TheSolution.Domain.Entities.Product", b =>
+                {
+                    b.Navigation("OrderProducts");
                 });
 #pragma warning restore 612, 618
         }

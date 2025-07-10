@@ -11,7 +11,7 @@ using TheSolution.Infrastructure.Data;
 
 namespace TheSolution.Infrastructure.Migrations
 {
-    [DbContext(typeof(TheSolutionDB))]
+    [DbContext(typeof(TheSolutionDBContext))]
     [Migration("20250630161109_Initial")]
     partial class Initial
     {

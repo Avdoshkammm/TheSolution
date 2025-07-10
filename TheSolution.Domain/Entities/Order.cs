@@ -12,8 +12,8 @@ namespace TheSolution.Domain.Entities
         public string UserID { get; set; }
         public User User { get; set; }
         public DateTime OrderDate { get; set; }
-        public decimal TotalAmount { get; set; }
-
-        public ICollection<OrderProduct> OrderProducts { get; set; }
+        public int TotalAmount { get; set; } //Итоговая стоимость
+        public int OPID { get; set; }
+        public OrderProduct OrderProducts { get; set; }
     }
 }

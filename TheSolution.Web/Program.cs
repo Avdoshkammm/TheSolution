@@ -1,14 +1,21 @@
+using AutoMapper;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using TheSolution.Application.Interfaces;
+using TheSolution.Application.Mapping;
+using TheSolution.Application.Services;
 using TheSolution.Domain.Entities;
+using TheSolution.Domain.Interfaces;
 using TheSolution.Infrastructure.Data;
+using TheSolution.Infrastructure.Repositories;
+using TheSolution.Infrastructure.UnitOfWork;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 builder.Services.AddControllersWithViews();
-builder.Services.AddDbContext<TheSolutionDB>(options =>
+builder.Services.AddDbContext<TheSolutionDBContext>(options =>
 {
     options.UseSqlServer(builder.Configuration.GetConnectionString("CS"));
 });
@@ -25,9 +32,23 @@ builder.Services.AddSession(options =>
     options.Cookie.HttpOnly = true;
     options.Cookie.IsEssential = true;
 });
+builder.Services.AddAutoMapper(typeof(MappingProfile));
+//builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
+////builder.Services.AddScoped<IProductRepository, ProductRepository>();
+////builder.Services.AddScoped<IProductService, ProductService>();
+//builder.Services.AddScoped<IOrderRepository, OrderRepository>();
+
+////builder.Services.AddScoped<IAccountRepository, AccountRepository>();
+////builder.Services.AddScoped<IAccountService, AccountService>();
+builder.Services.AddScoped<IAccountRepository, AccountRepository>();
+builder.Services.AddScoped<IAccountService, AccountService>();
+builder.Services.AddScoped<IProductRepository, ProductRepository>();
+builder.Services.AddScoped<IProductService, ProductService>();
+builder.Services.AddScoped<IOrderRepository, OrderRepository>();
+
 
 builder.Services.AddIdentity<User, IdentityRole>()
-    .AddEntityFrameworkStores<TheSolutionDB>()
+    .AddEntityFrameworkStores<TheSolutionDBContext>()
     .AddDefaultTokenProviders()
     .AddSignInManager<SignInManager<User>>();
 
