@@ -12,7 +12,7 @@ namespace TheSolution.Domain.Entities
         public string UserID { get; set; }
         public User User { get; set; }
         public DateTime OrderDate { get; set; }
-        public int TotalAmount { get; set; } //Итоговая стоимость
+        public int Quantity { get; set; } //Кол-во товара в заказе
         public int OPID { get; set; }
         public OrderProduct OrderProducts { get; set; }
     }

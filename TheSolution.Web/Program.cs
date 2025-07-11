@@ -19,6 +19,7 @@ builder.Services.AddDbContext<TheSolutionDBContext>(options =>
 {
     options.UseSqlServer(builder.Configuration.GetConnectionString("CS"));
 });
+
 builder.Services.AddDistributedMemoryCache();
 builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
     .AddCookie(options =>
@@ -33,7 +34,7 @@ builder.Services.AddSession(options =>
     options.Cookie.IsEssential = true;
 });
 builder.Services.AddAutoMapper(typeof(MappingProfile));
-//builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
+builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
 ////builder.Services.AddScoped<IProductRepository, ProductRepository>();
 ////builder.Services.AddScoped<IProductService, ProductService>();
 //builder.Services.AddScoped<IOrderRepository, OrderRepository>();

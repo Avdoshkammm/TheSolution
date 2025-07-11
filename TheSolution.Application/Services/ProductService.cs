@@ -27,7 +27,7 @@ namespace TheSolution.Application.Services
             }
             catch(Exception ex)
             {
-                logger.LogError(ex, $"\nGetProducts service error");
+                logger.LogError(ex, "\nGetProducts service error");
                 return Enumerable.Empty<ProductDTO>();
             }
         }
@@ -46,7 +46,7 @@ namespace TheSolution.Application.Services
             }
             catch(Exception ex)
             {
-                logger.LogError(ex, $"\nGetProduct service error");
+                logger.LogError(ex, "\nGetProduct service error");
                 return null;
             }
         }
@@ -62,7 +62,7 @@ namespace TheSolution.Application.Services
             }
             catch(Exception ex)
             {
-                logger.LogError(ex, $"\nСreate product service error");
+                logger.LogError(ex, "\nСreate product service error");
                 return null;
             }
         }
@@ -78,7 +78,7 @@ namespace TheSolution.Application.Services
             }
             catch(Exception ex)
             {
-                logger.LogError(ex, $"\nUpdate product service error");
+                logger.LogError(ex, "\nUpdate product service error");
                 return null;
             }
         }
@@ -92,7 +92,7 @@ namespace TheSolution.Application.Services
             }
             catch(Exception ex)
             {
-                logger.LogError(ex, $"\nDelete product service error");
+                logger.LogError(ex, "\nDelete product service error");
             }
         }
     }

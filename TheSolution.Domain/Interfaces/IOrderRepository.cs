@@ -9,6 +9,9 @@ namespace TheSolution.Domain.Interfaces
 {
     public interface IOrderRepository
     {
-        
+        Task<IEnumerable<OrderProduct>> GetAllOrders();
+        Task<IEnumerable<Order>> GetUserOrders(string userID);
+        Task<Order> GetOrderInfo(int id);
+        Task CreateOrder(string userID, int productID, int quantity);
     }
 }

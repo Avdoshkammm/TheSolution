@@ -32,7 +32,8 @@ namespace TheSolution.Application.Services
             }
             catch(Exception ex)
             {
-                logger.LogError("Fail at login in service");
+                logger.LogInformation("Fail at login in service");
+                logger.LogError(ex.Message);
             }
         }
 
@@ -40,7 +41,7 @@ namespace TheSolution.Application.Services
         {
             if(userdto == null)
             {
-                logger.LogError("В сервис передан пустой пользователь");
+                logger.LogError("Null user in service(Register)");
             }
             User loginUser = mapper.Map<User>(userdto);
             try
@@ -50,6 +51,7 @@ namespace TheSolution.Application.Services
             catch(Exception ex)
             {
                 logger.LogError("Fail at register in service");
+                logger.LogError(ex.Message);
             }
         }
 
