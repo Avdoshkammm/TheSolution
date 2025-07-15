@@ -70,6 +70,7 @@ namespace TheSolution.Application.Services
             catch(Exception ex)
             {
                 logger.LogError("Fail at SignInAsync in service");
+                logger.LogError(ex.Message);
             }
         }
     }

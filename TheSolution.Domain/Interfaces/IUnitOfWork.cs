@@ -10,6 +10,7 @@ namespace TheSolution.Domain.Interfaces
     {
         IProductRepository Products { get; }
         IAccountRepository Accounts { get; }
+        IOrderRepository Orders { get; }
         Task<int> SaveChangesAsync();
     }
 }

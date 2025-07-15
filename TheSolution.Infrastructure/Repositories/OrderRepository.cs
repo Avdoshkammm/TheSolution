@@ -35,89 +35,40 @@ namespace TheSolution.Infrastructure.Repositories
             return currentOrder;
         }
 
-        public async Task CreateOrder(string userID,int productID, int quantity)
+        public async Task<bool> CheckQuantity(int productID, int quantity)
         {
-            //1 - запись в таблицу Order
-            //2 - запись в таблицу OrderProduct
-            //3 - product.Quantity -- (update)
-
-            /* 1 - Поиск продукта +
-             * 2 - сравнение с количеством на складе +
-             * 3 - формирование заказа +
-             * 4 - добавление заказа +
-             * 5 - добавление информации о заказе +
-             * 6 - quantity--
-             * 7 - обновление продукта
-             * 8 - обновление записи в Product
-             * 9 - добавление информации о заказе в OrderProduct
-             * 10 - сохранение изменений
-             */
-
-            Product orderedProduct = await db.Products.FirstOrDefaultAsync(x => x.ID == productID);
-            
-            if (orderedProduct.Quantity <= quantity)
+            Product orderedProduct = await db.Products.FirstOrDefaultAsync(x => x.ID == productID); 
+            if(orderedProduct.Quantity < quantity)
             {
-                logger.LogError("Недостаточно товара для заказа");
-                return;
+                logger.LogError("Товара недостаточно для заказа");
+                return false;
             }
+            return true;
+        }
 
+        public async Task CreateOrder(string userID, int quantity)
+        {
             Order order = new Order
             {
                 UserID = userID,
-                OrderDate = DateTime.UtcNow,
-                Quantity = quantity,
+                OrderDate = DateTime.Now,
+                Quantity = quantity
             };
-
             await db.Orders.AddAsync(order);
+        }
 
-            //Добавляется запись в таблицу Order, без sca запись в OP не будет создана в принципе
-            await db.SaveChangesAsync();
+        public async Task CreateOrderInfo(int orderId, int productID)
+        {
+            Order newOrder = await db.Orders.FirstOrDefaultAsync(x => x.ID == orderId);
+            Product orderedProduct = await db.Products.FirstOrDefaultAsync(x => x.ID == productID);
 
-            OrderProduct op = new OrderProduct()
+            OrderProduct orderinfo = new OrderProduct
             {
-                OrderID = order.ID,
-                ProductID = productID,
-                TotalAmount = orderedProduct.Cost * quantity
+                OrderID = newOrder.ID,
+                ProductID = orderedProduct.ID,
+                TotalAmount = newOrder.Quantity * orderedProduct.Cost
             };
-
-            orderedProduct.Quantity -= quantity;
-            db.Products.Update(orderedProduct);
-            await db.OrderProducts.AddAsync(op);
-
-            //Сохраняется запись с информацией о товаре
-            await db.SaveChangesAsync();
-
-            //Поиск продукта
-            //Product? orderedProduct = await db.Products.AsNoTracking().FirstOrDefaultAsync(x => x.ID == productID);
-            //if(orderedProduct.Quantity < quantity)
-            //{
-            //    logger.LogError("Товара недостаточно для заказа");
-            //    return;
-            //}
-            ////Создание заказа
-            //Order order = new Order
-            //{
-            //    UserID = userID,
-            //    OrderDate = DateTime.Now,
-            //    TotalAmount = totalAmount,
-            //};
-            ////Добавление заказа в БД
-            //await db.Orders.AddAsync(order);
-            //await db.SaveChangesAsync();
-            ////Создание информации о заказе
-            //OrderProduct orderInfo = new OrderProduct
-            //{
-            //    OrderID = order.ID,
-            //    ProductID = productID,
-            //    Quantity = quantity,
-            //};
-
-            //orderedProduct.Quantity -= quantity;
-            //db.Products.Update(orderedProduct);
-
-            //await db.OrderProducts.AddAsync(orderInfo);
-            //await db.SaveChangesAsync();
-            
+            await db.OrderProducts.AddAsync(orderinfo);
         }
     }
 }

@@ -11,9 +11,8 @@ using TheSolution.Infrastructure.Data;
 using TheSolution.Infrastructure.Repositories;
 using TheSolution.Infrastructure.UnitOfWork;
 
-var builder = WebApplication.CreateBuilder(args);
+WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container.
 builder.Services.AddControllersWithViews();
 builder.Services.AddDbContext<TheSolutionDBContext>(options =>
 {
@@ -35,12 +34,6 @@ builder.Services.AddSession(options =>
 });
 builder.Services.AddAutoMapper(typeof(MappingProfile));
 builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
-////builder.Services.AddScoped<IProductRepository, ProductRepository>();
-////builder.Services.AddScoped<IProductService, ProductService>();
-//builder.Services.AddScoped<IOrderRepository, OrderRepository>();
-
-////builder.Services.AddScoped<IAccountRepository, AccountRepository>();
-////builder.Services.AddScoped<IAccountService, AccountService>();
 builder.Services.AddScoped<IAccountRepository, AccountRepository>();
 builder.Services.AddScoped<IAccountService, AccountService>();
 builder.Services.AddScoped<IProductRepository, ProductRepository>();

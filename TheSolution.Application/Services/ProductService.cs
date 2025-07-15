@@ -28,7 +28,7 @@ namespace TheSolution.Application.Services
             catch(Exception ex)
             {
                 logger.LogError(ex, "\nGetProducts service error");
-                return Enumerable.Empty<ProductDTO>();
+                throw;
             }
         }
 
