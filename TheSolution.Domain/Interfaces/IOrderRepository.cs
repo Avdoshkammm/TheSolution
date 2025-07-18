@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using TheSolution.Domain.Entities;
+﻿using TheSolution.Domain.Entities;
 
 namespace TheSolution.Domain.Interfaces
 {
@@ -14,6 +9,7 @@ namespace TheSolution.Domain.Interfaces
         Task<Order> GetOrderInfo(int id);
         Task<bool> CheckQuantity(int productID, int quantity);
         Task CreateOrder(string userID, int quantity);
+        Task UpdateProductQuantity(int productID, int quantity);
         Task CreateOrderInfo(int orderId, int productID);     //Task CreateNewOrder(string userID, int productID, int quantity);
         //Task AddOrderAndInfoMinusQuantity(int orderID, int quantity);
     }

@@ -19,21 +19,22 @@ namespace TheSolution.Application.Services
             logger = _logger;
         }
 
-        public async Task Login(UserDTO userdto, string password)
+        public async Task<bool> Login(UserDTO userdto, string password)
         {
             if(userdto == null)
             {
                 logger.LogError("В сервис передан пустой пользователь");
+                return false;
             }
-            User registeredUser = mapper.Map<User>(userdto);
+            User loginUser = mapper.Map<User>(userdto);
             try
             {
-                await unitOfWork.Accounts.Login(registeredUser, password);
+                return await unitOfWork.Accounts.Login(loginUser, password);
             }
             catch(Exception ex)
             {
-                logger.LogInformation("Fail at login in service");
-                logger.LogError(ex.Message);
+                logger.LogError(ex.Message, ex.Source, "\nError login in service");
+                return false;
             }
         }
 
@@ -50,8 +51,7 @@ namespace TheSolution.Application.Services
             }
             catch(Exception ex)
             {
-                logger.LogError("Fail at register in service");
-                logger.LogError(ex.Message);
+                logger.LogError(ex.Message, ex.Source, "\nFail at register in service");
             }
         }
 
@@ -69,8 +69,7 @@ namespace TheSolution.Application.Services
             }
             catch(Exception ex)
             {
-                logger.LogError("Fail at SignInAsync in service");
-                logger.LogError(ex.Message);
+                logger.LogError(ex.Message, ex.Source, "\nFail at SignInAsync in service");
             }
         }
     }

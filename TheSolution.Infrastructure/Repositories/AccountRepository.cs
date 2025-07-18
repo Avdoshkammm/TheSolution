@@ -16,44 +16,93 @@ namespace TheSolution.Infrastructure.Repositories
             sim = _sim;
             logger = _logger;
         }
-        public async Task<User> Login(User user, string password)
+
+        public async Task<bool> Login(User user, string password)
         {
             if(user == null)
             {
-                logger.LogError("Передан пустой польщователь");
-                return null;
+                logger.LogError("User empty in repository");
+                return false;
             }
-            else
+            var loginUser = await um.FindByEmailAsync(user.Email) ?? await um.FindByNameAsync(user.UserName);
+            if(loginUser == null)
             {
-                User? loginUser = await um.FindByEmailAsync(user.Email);
-                if(loginUser == null)
-                {
-                    loginUser = await um.FindByNameAsync(user.Name);
-                    if(loginUser == null)
-                    {
-                        logger.LogError("Пользователь не найден");
-                        return null;
-                    }
-                }
-                if(loginUser != null)
-                {
-                    bool passwordValue = await um.CheckPasswordAsync(loginUser, password);
-                    if(!passwordValue)
-                    {
-                        logger.LogError("Передан неверный пароль");
-                        return null;
-                    }
-                    logger.LogInformation("Авторизация успешна");
-                    return loginUser;
-                }
-                else
-                {
-                    logger.LogError("Пользователя не существует");
-                    return null;
-                }
-
+                logger.LogWarning("User not found by email or login");
+                return false;
             }
+            var result = await sim.PasswordSignInAsync(loginUser, password, true, false);
+            if (!result.Succeeded)
+            {
+                logger.LogWarning("PasswordSignInAsync error");
+                return false;
+            }
+            logger.LogInformation("Login succesful");
+            return true;
         }
+
+        public async Task SetUserRole(string user)
+        {
+            var userForRole = await um.FindByNameAsync(user);
+            var userr = await um.GetRolesAsync(userID);
+        }
+        //public async Task<User> Login(User user, string password)
+        //{
+        //    if(user == null)
+        //    {
+        //        logger.LogError("Передан пустой пользователь");
+        //        return null;
+        //    }
+        //    User loginUser = await um.FindByEmailAsync(user.Email) ?? await um.FindByNameAsync(user.UserName);
+        //    if(loginUser == null)
+        //    {
+        //        logger.LogError("Пользователь не найден");
+        //        return null;
+        //    }
+        //    SignInResult result = await sim.PasswordSignInAsync(loginUser, password, true, false);
+
+        //    if(!result.Succeeded)
+        //    {
+        //        logger.LogError("Передан неправильный пароль или вход невозможен");
+        //        return null;
+        //    }
+
+        //    logger.LogInformation("Попытка авторизации успешна");
+        //    return loginUser;
+        //    //if(user == null)
+        //    //{
+        //    //    logger.LogError("Передан пустой польщователь");
+        //    //    return null;
+        //    //}
+        //    //else
+        //    //{
+        //    //    User? loginUser = await um.FindByEmailAsync(user.Email);
+        //    //    if(loginUser == null)
+        //    //    {
+        //    //        loginUser = await um.FindByNameAsync(user.Name);
+        //    //        if(loginUser == null)
+        //    //        {
+        //    //            logger.LogError("Пользователь не найден");
+        //    //            return null;
+        //    //        }
+        //    //    }
+        //    //    if(loginUser != null)
+        //    //    {
+        //    //        bool passwordValue = await sim.PasswordSignInAsync(loginUser, password, true, false);
+        //    //        if(!passwordValue)
+        //    //        {
+        //    //            logger.LogError("Передан неверный пароль");
+        //    //            return null;
+        //    //        }
+        //    //        logger.LogInformation("Авторизация успешна");
+        //    //        return loginUser;
+        //    //    }
+        //    //    else
+        //    //    {
+        //    //        logger.LogError("Пользователя не существует");
+        //    //        return null;
+        //    //    }
+
+        //}
 
         public async Task<User> Register(User user, string password)
         {

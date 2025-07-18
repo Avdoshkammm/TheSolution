@@ -15,8 +15,7 @@ namespace TheSolution.Infrastructure.Repositories
             db = _db;
             logger = _logger;
         }
-
-
+        
         public async Task<IEnumerable<OrderProduct>> GetAllOrders()
         {
             IEnumerable<OrderProduct> orders = await db.OrderProducts.AsNoTracking().Include(o => o.Order).ThenInclude(u => u.User).ToListAsync();
@@ -56,7 +55,7 @@ namespace TheSolution.Infrastructure.Repositories
             };
             await db.Orders.AddAsync(order);
         }
-
+        
         public async Task CreateOrderInfo(int orderId, int productID)
         {
             Order newOrder = await db.Orders.FirstOrDefaultAsync(x => x.ID == orderId);
@@ -69,6 +68,13 @@ namespace TheSolution.Infrastructure.Repositories
                 TotalAmount = newOrder.Quantity * orderedProduct.Cost
             };
             await db.OrderProducts.AddAsync(orderinfo);
+        }
+
+        public async Task UpdateProductQuantity(int productID, int quantity)
+        {
+            Product orderedProduct = await db.Products.FirstOrDefaultAsync(x => x.ID == productID);
+            orderedProduct.Quantity -= quantity;
+            db.Products.Update(orderedProduct);
         }
     }
 }

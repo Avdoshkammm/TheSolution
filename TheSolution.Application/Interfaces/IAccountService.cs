@@ -9,7 +9,7 @@ namespace TheSolution.Application.Interfaces
 {
     public interface IAccountService
     {
-        Task Login(UserDTO userDTO, string password);
+        Task<bool> Login(UserDTO userDTO, string password);
         Task Register(UserDTO userDTO, string password);
         Task SignInAsync(UserDTO userdto, bool isPersistent);
     }

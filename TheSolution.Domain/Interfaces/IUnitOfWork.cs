@@ -11,6 +11,11 @@ namespace TheSolution.Domain.Interfaces
         IProductRepository Products { get; }
         IAccountRepository Accounts { get; }
         IOrderRepository Orders { get; }
+        Task BeginTransactionAsync();
+        Task CommitTransactionAsync();
+        Task RollbackTransactionAsync();
+
+
         Task<int> SaveChangesAsync();
     }
 }

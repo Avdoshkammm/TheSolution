@@ -1,17 +1,13 @@
 ﻿using AutoMapper;
 using Microsoft.Extensions.Logging;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using TheSolution.Application.DTO;
+using TheSolution.Application.Interfaces;
 using TheSolution.Domain.Entities;
 using TheSolution.Domain.Interfaces;
 
 namespace TheSolution.Application.Services
 {
-    public class OrderService
+    public class OrderService : IOrderService
     {
         private readonly IUnitOfWork uow;
         private readonly IMapper mapper;
@@ -28,11 +24,12 @@ namespace TheSolution.Application.Services
             IEnumerable<OrderProduct> orders = await uow.Orders.GetAllOrders();
             try
             {
+                logger.LogInformation("GetAllOrders service");
                 return mapper.Map<IEnumerable<OrderProductDTO>>(orders);
             }
             catch (Exception ex)
             {
-                logger.LogError(ex,"\nGetAllOrders service error");
+                logger.LogError(ex.Message, ex.Source,"\nGetAllOrders service error");
                 throw;
             }
         }
@@ -42,11 +39,12 @@ namespace TheSolution.Application.Services
             IEnumerable<Order> uOrders = await uow.Orders.GetUserOrders(userID);
             try
             {
+                logger.LogInformation("GetUserOrders service");
                 return mapper.Map<IEnumerable<OrderDTO>>(uOrders);
             }
             catch (Exception ex)
             {
-                logger.LogError(ex,"\nGetUserOrders service error");
+                logger.LogError(ex.Message, ex.Source,"\nGetUserOrders service error");
                 throw;
             }
         }
@@ -56,108 +54,39 @@ namespace TheSolution.Application.Services
             Order order = await uow.Orders.GetOrderInfo(id);
             try
             {
+                logger.LogInformation($"GetOrderInfo {id} service");
                 return mapper.Map<OrderDTO>(order);
             }
             catch (Exception ex)
             {
-                logger.LogError("");
-                return null;
+                logger.LogError(ex.Message, ex.Source, "\nGetOrderInfo service error");
+                throw;
             }
         }
 
         public async Task CreateNewOrder(string userID, int productID, int quantity, OrderDTO orderdto)
         {
+            await uow.BeginTransactionAsync();
             try
             {
-                Order order = mapper.Map<Order>(orderdto);
-                try
+                Task<bool> checkQuantity = uow.Orders.CheckQuantity(productID, quantity);
+                if(checkQuantity.Result == false)
                 {
-                    await uow.Orders.CheckQuantity(productID, quantity);
-                    try
-                    {
-                        await uow.Orders.CreateOrder(userID, quantity);
-                        try
-                        {
-                            await uow.Orders.CreateOrderInfo(order.ID, productID);
-                            try
-                            {
-                                await uow.SaveChangesAsync();
-                            }
-                            catch (Exception ex)
-                            {
-                                logger.LogError("Ошибка на этапе финального сохранения");
-                            }
-                        }
-                        catch (Exception ex)
-                        {
-                            logger.LogError("Ошибка на этапе добавления информации о заказе");
-                        }
-                    }
-                    catch (Exception ex)
-                    {
-                        logger.LogError("Ошибка на этапе создания заказа");
-                    }
+                    throw new InvalidOperationException("Продукта недостаточно для заказа");
                 }
-                catch (Exception ex)
-                {
-                    logger.LogError("Ошибка на этапе проверки количества продукта");
-                }
+                var createOrder = uow.Orders.CreateOrder(userID, quantity);
+                Task<Order> checkCurrentOrder = uow.Orders.GetOrderInfo(createOrder.Id);
+                await uow.Orders.CreateOrderInfo(createOrder.Id, productID);
+                await uow.Orders.UpdateProductQuantity(productID,quantity);
+                await uow.SaveChangesAsync();
+                await uow.CommitTransactionAsync();
             }
-            catch (Exception ex)
+            catch(Exception ex)
             {
-                logger.LogError("Ошибка маппинга заказа");
+                logger.LogError(ex.Message, ex.Source, "\nCreateNewOrder service error");
+                await uow.RollbackTransactionAsync();
+                throw;
             }
         }
-                
-            ////Проверка количества продукта
-            //Task<bool> checkQuantity = uow.Orders.CheckQuantity(productID, quantity);
-            //if(checkQuantity.Result == false)
-            //{
-            //    logger.LogError("Продукта для заказа недостаточно(service error)");
-            //    return null;
-            //    throw new Exception("Недостаточно продукта для заказа");
-            //}
-
-            ////Создание щаписи в таблицу Order
-            //Task createOrder = uow.Orders.CreateOrder(userID, quantity);
-            ////Проверка на сощдание заказа
-            //if(createOrder == null)
-            //{
-            //    logger.LogError("Ошибка при создании заказа(service error)");
-            //    return null;
-            //    throw new Exception("Ошибка при создании заказа");
-            //}
-
-            //Task<Order> checkCurrentOrder = uow.Orders.GetOrderInfo(createOrder.Id);
-            //if (checkCurrentOrder == null)
-            //{
-            //    logger.LogError("Ошибка при проверке существования заказа");
-            //    return null;
-            //    throw new Exception("Ошибка при проверке существования заказа в сервисе");
-            //}
-            
-
-
-            //await uow.Orders.CreateOrderInfo(checkCurrentOrder.Id, quantity);
-            //try
-            //{
-            //    await uow.SaveChangesAsync();
-            //    try
-            //    {
-            //        return mapper.Map<OrderDTO>(checkCurrentOrder);
-            //    }
-            //    catch(Exception ex)
-            //    {
-            //        logger.LogError(ex.Message);
-            //        return null;
-            //        throw new Exception("Ошибка при маппинге итоговых данных");
-            //    }
-            //}
-            //catch(Exception ex)
-            //{
-            //    logger.LogError("Ошибка при сохранении информации о заказе");
-            //    throw new Exception("Error add OrderInfo");
-            //}
-
     }
 }

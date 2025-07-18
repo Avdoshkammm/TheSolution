@@ -18,75 +18,27 @@ namespace TheSolution.Infrastructure.Repositories
         public async Task<IEnumerable<Product>> GetValues()
         {
             IEnumerable<Product> products = await db.Products.AsNoTracking().ToListAsync();
-            try
-            {
-                return products;
-            }
-            catch(Exception ex)
-            {
-                logger.LogError($"{ex.Message}\nОшибка вывода продуктов");
-                throw;
-            }
+            return products;
         }
         public async Task<Product> GetValue(int id)
         {
             Product? product = await db.Products.AsNoTracking().FirstOrDefaultAsync(x => x.ID == id);
-            try
-            {
-                return product;
-            }
-            catch(Exception ex)
-            {
-                logger.LogError($"{ex.Message}\nОшибка поиска продукта");
-                throw;
-            }
+            return product;
         }
         public async Task CreateValue(Product product)
         {
-            try
-            {
-                await db.Products.AddAsync(product);
-            }
-            catch(Exception ex)
-            {
-                logger.LogError($"{ex.Message}\nОшибка создания продукта");
-                throw;
-            }
+            await db.Products.AddAsync(product);
         }
         public async Task UpdateValue(Product product)
         {
-            Product updatedProduct = new Product()
-            {
-                ID = product.ID,
-                Name = product.Name,
-                Description = product.Description,
-                Cost = product.Cost,
-                Quantity = product.Quantity,
-            };
-            try
-            {
-                db.Products.Update(updatedProduct);
-            }
-            catch(Exception ex)
-            {
-                logger.LogError($"{ex.Message}\nОшибка обновления продукта");
-                throw;
-            }
+            db.Products.Update(product);
         }
         public async Task DeleteValue(int id)
         {
             Product? product = await db.Products.FirstOrDefaultAsync(x => x.ID == id);
             if(product != null)
             {
-                try
-                {
-                    db.Products.Remove(product);
-                }
-                catch(Exception ex)
-                {
-                    logger.LogError($"{ex.Message}\nОшибка удаления продукта");
-                    throw;
-                }
+                db.Products.Remove(product);
             }
         }
     }
